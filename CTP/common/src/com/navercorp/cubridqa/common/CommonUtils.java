@@ -205,7 +205,11 @@ public class CommonUtils {
 		InputStream in = null;
 		try {
 			url = new URL(urlStr);
-			in = url.openStream();
+			// Avoid indefinite hang on network issues by applying timeouts.
+			java.net.URLConnection conn = url.openConnection();
+			conn.setConnectTimeout(10000);
+			conn.setReadTimeout(10000);
+			in = conn.getInputStream();
 			res = true;
 		} catch (Exception e1) {
 			res = false;

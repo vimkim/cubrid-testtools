@@ -95,6 +95,37 @@ public class CommonUtils {
 		return ver;
 	}
 
+	/**
+	 * Returns a short message when build version could not be read: e.g.
+	 * "CUBRID is unset; qa.conf is missing". Returns empty string if nothing to report.
+	 */
+	public static String getBuildVersionDiagnostic(SSHConnect ssh) {
+		if (ssh == null)
+			return "";
+		try {
+			String out = ssh.execute(Constants.BUILD_VERSION_DIAGNOSTIC_SCRIPT);
+			if (out == null)
+				return "";
+			out = out.trim();
+			ArrayList<String> parts = new ArrayList<String>();
+			if (out.contains("CUBRID_UNSET"))
+				parts.add("CUBRID is unset");
+			if (out.contains("QA_CONF_MISSING"))
+				parts.add("qa.conf is missing (or not readable)");
+			if (parts.isEmpty())
+				return "";
+			StringBuilder sb = new StringBuilder();
+			for (int i = 0; i < parts.size(); i++) {
+				if (i > 0)
+					sb.append("; ");
+				sb.append(parts.get(i));
+			}
+			return sb.toString();
+		} catch (Exception e) {
+			return "";
+		}
+	}
+
 	public static ArrayList<String[]> extractTableToBeVerified(String input, String flag) {
 
 		ArrayList<String[]> list = new ArrayList<String[]>();

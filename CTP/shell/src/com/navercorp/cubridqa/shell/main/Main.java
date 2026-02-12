@@ -80,6 +80,10 @@ public class Main {
 			SSHConnect ssh = ShellHelper.createTestNodeConnect(context, envId);
 			String buildInfo = com.navercorp.cubridqa.shell.common.CommonUtils.getBuildVersionInfo(ssh);
 			if (CommonUtils.isEmpty(buildInfo)) {
+				String diagnostic = com.navercorp.cubridqa.shell.common.CommonUtils.getBuildVersionDiagnostic(ssh);
+				if (!com.navercorp.cubridqa.common.CommonUtils.isEmpty(diagnostic)) {
+					System.out.println("[ERROR]: " + diagnostic);
+				}
 				System.out.println("[ERROR]: Please confirm your build installation for local test!");
 				System.out.println("QUIT");
 				System.exit(-1);

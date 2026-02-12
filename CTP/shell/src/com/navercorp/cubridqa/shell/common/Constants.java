@@ -57,6 +57,14 @@ public class Constants {
 	public static final ShellScriptInput LIN_KILL_PROCESS_LOCAL = createLinKillScripts(true);
 
 	public static final ShellScriptInput GET_VERSION_SCRIPT = craeteGetVersionScript();
+	public static final ShellScriptInput BUILD_VERSION_DIAGNOSTIC_SCRIPT = createBuildVersionDiagnosticScript();
+
+	private static ShellScriptInput createBuildVersionDiagnosticScript() {
+		ShellScriptInput scripts = new ShellScriptInput();
+		scripts.addCommand("[ -z \"$CUBRID\" ] && echo CUBRID_UNSET");
+		scripts.addCommand("[ -n \"$CUBRID\" ] && [ ! -f \"$CUBRID/qa.conf\" ] && echo QA_CONF_MISSING");
+		return scripts;
+	}
 
 	private static ShellScriptInput createWinKillScripts(boolean inLocal) {
 		ShellScriptInput scripts = new ShellScriptInput();

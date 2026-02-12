@@ -30,6 +30,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.lang.ProcessBuilder.Redirect;
 
 public class LocalInvoker {
 
@@ -97,7 +98,8 @@ public class LocalInvoker {
 		}
 		}
 
-		result = execCommands(invokedCmd, showInConsole);
+		boolean redirectStdin = (shellType == SHELL_TYPE_LINUX && !CommonUtils.isWindowsPlatform());
+		result = execCommands(invokedCmd, showInConsole, redirectStdin);
 
 		try {
 			tmpFile.delete();
@@ -108,14 +110,28 @@ public class LocalInvoker {
 	}
 
 	public static String execCommands(String cmds, boolean showInConsole) {
-		Runtime run = Runtime.getRuntime();
+		return execCommands(cmds, showInConsole, false);
+	}
+
+	/**
+	 * Run a shell command. When redirectStdin is true (Linux/Cygwin), the process
+	 * stdin is connected to /dev/null so child commands (e.g. cubrid_rel) do not
+	 * hang waiting for input.
+	 */
+	public static String execCommands(String cmds, boolean showInConsole, boolean redirectStdin) {
 		Process p = null;
 		int pos;
 
 		String result;
 
 		try {
-			p = run.exec(cmds);
+			if (redirectStdin) {
+				ProcessBuilder pb = new ProcessBuilder("/bin/sh", "-c", cmds);
+				pb.redirectInput(Redirect.from(new File("/dev/null")));
+				p = pb.start();
+			} else {
+				p = Runtime.getRuntime().exec(cmds);
+			}
 			StreamReader stdout = new StreamReader(p.getInputStream(), showInConsole);
 			StreamReader errout = new StreamReader(p.getErrorStream(), showInConsole);
 			stdout.start();
