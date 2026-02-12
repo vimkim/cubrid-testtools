@@ -78,9 +78,13 @@ public class Main {
 			String envId = context.getEnvList().get(0);
 
 			SSHConnect ssh = ShellHelper.createTestNodeConnect(context, envId);
+			/* Determine exact reason version check can fail (or would have hung): CUBRID unset / qa.conf missing */
+			String diagnostic = com.navercorp.cubridqa.shell.common.CommonUtils.getBuildVersionDiagnostic(ssh);
+			if (!com.navercorp.cubridqa.common.CommonUtils.isEmpty(diagnostic)) {
+				System.out.println("[INFO]: Build version check may fail or hang because: " + diagnostic);
+			}
 			String buildInfo = com.navercorp.cubridqa.shell.common.CommonUtils.getBuildVersionInfo(ssh);
 			if (CommonUtils.isEmpty(buildInfo)) {
-				String diagnostic = com.navercorp.cubridqa.shell.common.CommonUtils.getBuildVersionDiagnostic(ssh);
 				if (!com.navercorp.cubridqa.common.CommonUtils.isEmpty(diagnostic)) {
 					System.out.println("[ERROR]: " + diagnostic);
 				}
